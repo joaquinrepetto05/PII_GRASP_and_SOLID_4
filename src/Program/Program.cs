@@ -16,7 +16,7 @@ namespace Full_GRASP_And_SOLID
 
         private static List<Equipment> equipmentCatalog = new List<Equipment> ();
 
-        public static void Main(string[] args)
+        public static void Main (string [] args)
         {
             PopulateCatalogs ();
 
