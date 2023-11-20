@@ -1,77 +1,76 @@
-﻿//-------------------------------------------------------------------------
+﻿﻿//-------------------------------------------------------------------------
 // <copyright file="Program.cs" company="Universidad Católica del Uruguay">
 // Copyright (c) Programación II. Derechos reservados.
 // </copyright>
 //-------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 
-namespace Full_GRASP_And_SOLID
+namespace Recipies
 {
     public class Program
     {
-        private static List<Product> productCatalog = new List<Product> ();
+        private static ArrayList productCatalog = new ArrayList();
+        private static ArrayList equipmentCatalog = new ArrayList();
 
-        private static List<Equipment> equipmentCatalog = new List<Equipment> ();
-
-        public static void Main (string [] args)
+        public static void Main(string[] args)
         {
-            PopulateCatalogs ();
+            PopulateCatalogs();
 
-            Recipe recipe = new Recipe ();
-            recipe.FinalProduct = GetProduct ("Café con leche");
-            recipe.AddStep (new Step (GetProduct ("Café"), 100, GetEquipment ("Cafetera"), 120));
-            recipe.AddStep (new Step (GetProduct ("Leche"), 200, GetEquipment ("Hervidor"), 60));
+            Product product = ProductCreator.CreateProduct("Café", 100);
+            Equipment equipment = EquipmentCreator.CreateEquipment("Cafetera", 1000);
 
-            IPrinter printer;
-            printer = new ConsolePrinter ();
-            printer.PrintRecipe (recipe);
-            printer = new FilePrinter ();
-            printer.PrintRecipe (recipe);
+            Recipe recipe = new RecipeBuilder()
+                .WithFinalProduct(GetProduct("Café con leche"))
+                .WithStep(GetProduct("Café"), 100, GetEquipment("Cafetera"), 120)
+                .WithStep(GetProduct("Leche"), 200, GetEquipment("Hervidor"), 60)
+                .Build();
+
+
+            Console.WriteLine(recipe.ConvertToJson());
+        }
+        private static void PopulateCatalogs()
+        {
+            AddProductToCatalog("Café", 100);
+            AddProductToCatalog("Leche", 200);
+            AddProductToCatalog("Café con leche", 300);
+
+            AddEquipmentToCatalog("Cafetera", 1000);
+            AddEquipmentToCatalog("Hervidor", 2000);
         }
 
-        private static void PopulateCatalogs ()
+        private static void AddProductToCatalog(string description, double unitCost)
         {
-            AddProductToCatalog ("Café", 100);
-            AddProductToCatalog ("Leche", 200);
-            AddProductToCatalog ("Café con leche", 300);
-
-            AddEquipmentToCatalog ("Cafetera", 1000);
-            AddEquipmentToCatalog ("Hervidor", 2000);
+            productCatalog.Add(new Product(description, unitCost));
         }
 
-        private static void AddProductToCatalog (string description, double unitCost)
+        private static void AddEquipmentToCatalog(string description, double hourlyCost)
         {
-            productCatalog.Add (new Product (description, unitCost));
+            equipmentCatalog.Add(new Equipment(description, hourlyCost));
         }
 
-        private static void AddEquipmentToCatalog (string description, double hourlyCost)
+        private static Product ProductAt(int index)
         {
-            equipmentCatalog.Add (new Equipment (description, hourlyCost));
+            return productCatalog[index] as Product;
         }
 
-        private static Product ProductAt (int index)
+        private static Equipment EquipmentAt(int index)
         {
-            return productCatalog [index] as Product;
+            return equipmentCatalog[index] as Equipment;
         }
 
-        private static Equipment EquipmentAt (int index)
-        {
-            return equipmentCatalog [index] as Equipment;
-        }
-
-        private static Product GetProduct (string description)
+        private static Product GetProduct(string description)
         {
             var query = from Product product in productCatalog where product.Description == description select product;
-            return query.FirstOrDefault ();
+            return query.FirstOrDefault();
         }
 
-        private static Equipment GetEquipment (string description)
+        private static Equipment GetEquipment(string description)
         {
             var query = from Equipment equipment in equipmentCatalog where equipment.Description == description select equipment;
-            return query.FirstOrDefault ();
+            return query.FirstOrDefault();
         }
     }
 }

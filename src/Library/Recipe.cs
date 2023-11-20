@@ -5,52 +5,39 @@
 //-------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
+using System.Collections;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-namespace Full_GRASP_And_SOLID
+namespace Recipies
 {
-    public class Recipe
+    public class Recipe:IJsonConvertible
     {
-        private IList<Step> steps = new List<Step>();
-
         public Product FinalProduct { get; set; }
+
+        [JsonInclude]
+        public ArrayList Steps { get; private set; } = new ArrayList();
+
 
         public void AddStep(Step step)
         {
-            this.steps.Add(step);
+            this.Steps.Add(step);
         }
 
         public void RemoveStep(Step step)
         {
-            this.steps.Remove(step);
+            this.Steps.Remove(step);
+        }
+        public string ConvertToJson()
+        {
+            return JsonSerializer.Serialize(this);
         }
 
-        // Agregado por SRP
-        public string GetTextToPrint()
+        public void LoadFromJson(string json)
         {
-            string result = $"Receta de {this.FinalProduct.Description}:\n";
-            foreach (Step step in this.steps)
-            {
-                result = result + step.GetTextToPrint() + "\n";
-            }
-
-            // Agregado por Expert
-            result = result + $"Costo de producción: {this.GetProductionCost()}";
-
-            return result;
-        }
-
-        // Agregado por Expert
-        public double GetProductionCost()
-        {
-            double result = 0;
-
-            foreach (Step step in this.steps)
-            {
-                result = result + step.GetStepCost();
-            }
-
-            return result;
+            Recipe deserialized = JsonSerializer.Deserialize<Recipe>(json);
+            this.FinalProduct = deserialized.FinalProduct;
+            this.Steps = deserialized.Steps;
         }
     }
 }

@@ -4,18 +4,38 @@
 // </copyright>
 //---------------------------------------------------------------------------------------
 
-namespace Full_GRASP_And_SOLID
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Recipies
 {
-    public class Product
+    public class Product:IJsonConvertible
     {
+        [JsonConstructor]
         public Product(string description, double unitCost)
         {
             this.Description = description;
             this.UnitCost = unitCost;
         }
 
+        public Product(string json)
+        {
+            this.LoadFromJson(json);
+        }
         public string Description { get; set; }
 
         public double UnitCost { get; set; }
+
+         public string ConvertToJson()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
+        public void LoadFromJson(string json)
+        {
+            Product deserialized = JsonSerializer.Deserialize<Product>(json);
+            this.Description = deserialized.Description;
+            this.UnitCost = deserialized.UnitCost;
+        }
     }
 }

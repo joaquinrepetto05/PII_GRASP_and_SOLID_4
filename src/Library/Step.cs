@@ -4,16 +4,25 @@
 // </copyright>
 //-------------------------------------------------------------------------------
 
-namespace Full_GRASP_And_SOLID
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Recipies
 {
-    public class Step
+    public class Step:IJsonConvertible
     {
+        [JsonConstructor]
         public Step(Product input, double quantity, Equipment equipment, int time)
         {
             this.Quantity = quantity;
             this.Input = input;
             this.Time = time;
             this.Equipment = equipment;
+        }
+
+        public Step(string json)
+        {
+            this.LoadFromJson(json);
         }
 
         public Product Input { get; set; }
@@ -23,20 +32,18 @@ namespace Full_GRASP_And_SOLID
         public int Time { get; set; }
 
         public Equipment Equipment { get; set; }
-
-        // Agregado por Expert
-        public double GetStepCost()
+         public string ConvertToJson()
         {
-            return
-                (this.Input.UnitCost * this.Quantity) +
-                (this.Equipment.HourlyCost * this.Time);
+            return JsonSerializer.Serialize(this);
         }
 
-        // Agregado por SRP
-        public string GetTextToPrint()
+        public void LoadFromJson(string json)
         {
-            return $"{this.Quantity} de '{this.Input.Description}' " +
-                $"usando '{this.Equipment.Description}' durante {this.Time}";
+            Step deserialized = JsonSerializer.Deserialize<Step>(json);
+            this.Quantity = deserialized.Quantity;
+            this.Input = deserialized.Input;
+            this.Time = deserialized.Time;
+            this.Equipment = deserialized.Equipment;
         }
     }
 }
